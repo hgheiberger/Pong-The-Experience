@@ -3,9 +3,10 @@ const scene = new THREE.Scene();
 
 //Initialize camera
 const fov = 75;
+const aspectRatio = innerWidth / innerHeight;
 const nearClipping = 0.1;
 const farClipping = 1000;
-const camera = new THREE.PerspectiveCamera(fov, innerWidth / innerHeight, nearClipping, farClipping);
+const camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearClipping, farClipping);
 camera.position.z = 50;
 
 //Initialize renderer

@@ -21,7 +21,6 @@ canvas {
     background-color: rgb(255, 255, 255);
     width: 640px;
     height: 360px;
-    margin: auto;
 }
 
 #scores {
