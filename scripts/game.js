@@ -15,15 +15,16 @@ var ballDirX = 1, ballDirY = 1;
 
 //User-Configuration Variables
 const pointsToWin = 7;
-const difficulty = 0.2; //0: easiest  - 1: hardest
+const difficulty = 0.3; //0: easiest  - 1: hardest
 
 const paddleWidth = 10;
 const paddleHeight = 30;
 const paddleDepth = 10;
 
-const playerPaddleSpeed = 1.5;
-const maxCPUSpeed = 1.5;
-const ballSpeed = 2;
+const playerPaddleSpeed = 1.7;
+const maxCPUSpeed = 2.1;
+var ballSpeed = 2.5;
+const maxBallSpeed = 5;
 
 //Materials for game
 const paddle1Material = new THREE.MeshLambertMaterial({color: 0x1B32C0});
@@ -39,14 +40,15 @@ const paddle1Geometry = new THREE.BoxGeometry(paddleWidth, paddleHeight, paddleD
 const paddle2Geometry = new THREE.BoxGeometry(paddleWidth, paddleHeight, paddleDepth, 1, 1, 1);
 const ballGeometry = new THREE.SphereGeometry(5, 6, 6);
 const playingFieldGeometry = new THREE.PlaneGeometry(playingFieldWidth*0.95, playingFieldHeight, 10, 10);
-const backgroundTableGeometry = new THREE.BoxGeometry(playingFieldWidth*1.05, playingFieldHeight*1.03, 100, 10, 10, 1); 
+const backgroundTableGeometry = new THREE.BoxGeometry(playingFieldWidth*1.05, playingFieldHeight*1.03, 100, 10, 10, 1);
+const backgroundPillarGeometry = new THREE.BoxGeometry(30, 30, 300, 1, 1, 1); 
 const groundGeometry = new THREE.BoxGeometry(1000, 1000, 3, 1, 1, 1);
 
 //Initialize Three.js Scene
 function createScene(){
     //Set scene size (in pixels)
-    const sceneWidth = 640;
-    const sceneHeight = 360;
+    const sceneWidth = 1280;
+    const sceneHeight = 720;
 
     //Initialize scene
     scene = new THREE.Scene();
@@ -178,13 +180,58 @@ function handleBallPhysics(){
     }
 
     //Handles bouncing off table
-    if(ball.position.y <= -playingFieldHeight / 2 || ball.position.y >= playingFieldHeight / 2){
-        
+    if (ball.position.y <= -playingFieldHeight / 2 || ball.position.y >= playingFieldHeight / 2){
+        ballDirY = -ballDirY;
+    }
+
+    //Updates ball position
+    ball.position.x += ballDirX * ballSpeed;
+    ball.position.y += ballDirY * ballSpeed;
+
+    //Limits ball speed to maxBallSpeed
+    if (ballDirY > maxBallSpeed){
+        ballDirY = maxBallSpeed;
+    }
+    else if (ballDirY < -maxBallSpeed){
+        ballDirY = -maxBallSpeed;
     }
 }
 
 //Handles paddle physics
 function handlePaddlePhysics(){
+    //Handles player paddle collisions
+    if ((ball.position.x <= (paddle1.position.x + paddleWidth)) && ball.position.x >= paddle1.position.x){
+        if((ball.position.y <= (paddle1.position.y + paddleHeight/2)) && (ball.position.y >= (paddle1.position.y - paddleHeight/2))){
+            //If ball is travelling towards player
+            if (ballDirX < 0){
+                //Perform hit animation
+                paddle1.scale.y = 15;
+
+                //Switch ball direction
+                ballDirX = -ballDirX;
+
+                //Update ball angle
+                ballDirY -= paddle1DirY * 0.7;
+            }
+        }
+    } 
+
+    //Handles CPU paddle collisions
+    if ((ball.position.x <= (paddle2.position.x + paddleWidth)) && ball.position.x >= paddle2.position.x){
+        if((ball.position.y <= (paddle2.position.y + paddleHeight/2)) && (ball.position.y >= (paddle2.position.y - paddleHeight/2))){
+            //If ball is travelling towards CPU
+            if (ballDirX > 0){
+                //Perform hit animation
+                paddle2.scale.y = 15;
+
+                //Switch ball direction
+                ballDirX = -ballDirX;
+
+                //Update ball angle
+                ballDirY -= paddle2DirY * 0.7;
+            }
+        }
+    } 
 
 }
 
@@ -195,8 +242,16 @@ function handleCameraPhysics(){
 	spotLight.position.y = ball.position.y * 2;
 
     //Position camera behind paddle's current position
+	camera.position.x = paddle1.position.x - 100;
+	camera.position.y += (paddle1.position.y - camera.position.y) * 0.05;
 
+    //Add small camera movement effect
+    camera.position.z = paddle1.position.z + 100 + 0.04 * (-ball.position.x + paddle1.position.x);
 
+    //Rotates camera toward CPU
+    camera.rotation.x = -0.01 * (ball.position.y) * Math.PI/180;
+    camera.rotation.y = -60 * Math.PI/180;
+    camera.rotation.z = -90 * Math.PI/180;
 
 }
 
@@ -237,6 +292,7 @@ function handlePlayerMovement(){
     }
 
     //Gradually descales paddle if necessary
+    paddle1.scale.y += (1 - paddle1.scale.y) * 0.2;	
     paddle1.scale.z += (1 - paddle1.scale.z) * 0.2;	
     
     //Performs paddle movement
@@ -272,7 +328,7 @@ function handleCPUMovement(){
 
 //Resets ball after point
 //losingPaddle: 1: Player  0: CPU
-function resetBall(losingPadfle){
+function resetBall(losingPaddle){
     //Reset ball position to center
     ball.position.x = 0;
     ball.position.y = 0;
@@ -293,6 +349,7 @@ function resetBall(losingPadfle){
 //Checks wheher Player or CPU has won
 var bounceTimee = 0;
 function checkWinCondition(){
+    
     if (playerScore >= pointsToWin){
         //Stop Ball 
         ballSpeed = 0;

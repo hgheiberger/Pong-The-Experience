@@ -10,8 +10,8 @@ const camera = new THREE.PerspectiveCamera(fov, aspectRatio, nearClipping, farCl
 camera.position.z = 50;
 
 //Initialize renderer
-const mainCanvas = document.getElementById("mainCanvas");
-const renderer = new THREE.WebGLRenderer({canvas: mainCanvas, alpha: false});
+const menuCanvas = document.getElementById("menuCanvas");
+const renderer = new THREE.WebGLRenderer({canvas: menuCanvas, alpha: false});
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
 
@@ -94,8 +94,8 @@ function animate() {
     const { array, originalPosition, randomValues} = planeMesh.geometry.attributes.position;
 
     for (let i = 0; i < array.length; i += 3){
-        array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.006;
-        array[i + 1] = originalPosition[i + 1] + Math.sin(frame + randomValues[i]) * 0.006;
+        array[i] = originalPosition[i] + Math.cos(frame + randomValues[i]) * 0.009;
+        array[i + 1] = originalPosition[i + 1] + Math.sin(frame + randomValues[i]) * 0.009;
 
     }
 
