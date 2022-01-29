@@ -21,10 +21,10 @@ const paddleWidth = 10;
 const paddleHeight = 30;
 const paddleDepth = 10;
 
-const playerPaddleSpeed = 1.7;
-const maxCPUSpeed = 2.1;
-var ballSpeed = 2.5;
-const maxBallSpeed = 5;
+const playerPaddleSpeed = 1.4;
+const maxCPUSpeed = 2.5;
+var ballSpeed = 1.6;
+const maxBallSpeed = 3.0;
 
 //Materials for game
 const paddle1Material = new THREE.MeshLambertMaterial({color: 0x1B32C0});
